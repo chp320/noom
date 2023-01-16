@@ -16,6 +16,8 @@ const handleListen = () => console.log("Listening on http://localhost:3000");
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });   // 웹소켓 서버 생성하면서 http서버를 전달. 2가지 프로토콜(http, websocket)을 사용하기 위한 목적으로 설정
 
+// 배열을 사용해서 접속된 사용자 확인..
+const sockets = [];
 
 /* [ 콜백함수를 on 메서드 안으로 넣기 위한 정리! ]
 // 웹소켓 이벤트 핸들링
@@ -28,12 +30,15 @@ wss.on("connection", handleConnection)
 
 // 익명함수를 만들어 on 메서드에 포함하는 형태로 수정
 wss.on("connection", (socket) => {
+    sockets.push(socket);   // 서버에 신규 접속 시마다 배열 sockets에 접속 정보 push
     // console.log(socket);
     console.log("Connected to Browser");
     socket.on("close", () => console.log("Disconnected from Browser"));     // 웹소켓의 close 이벤트 발생 시 처리 로직
     socket.on("message", (message) => {
-        console.log(`${message}`)
-        socket.send(`${message}`);  // 클라이언트에서 보낸 메시지를 받고, 다시 클라이언트에 메시지 전송
+        // console.log(`${message}`)
+        // socket.send(`${message}`);  // 클라이언트에서 보낸 메시지를 받고, 다시 클라이언트에 메시지 전송
+        // connection이 발생할 때마다 웹소켓 배열 각 요소에 메시지 전송
+        sockets.forEach(aSocket => aSocket.send(`${message}`));
     });
     // socket.send("hello!!");
 })
