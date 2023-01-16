@@ -19,7 +19,11 @@ socket.addEventListener("open", () => {
 })
 
 socket.addEventListener("message", (message) => {
-    console.log("Just got this:", message.data, "from the server");
+    // console.log("Just got this:", message.data, "from the server");
+    // 수신한 메시지를 화면에 출력하기 위해서,, 메시지 전송 시마다 1) li 요소를 만들고 2) 그 안에 메시지 적고 3) li를 ul 안으로 넣기
+    const li = document.createElement("li");    // li 요소를 생성
+    li.innerHTML = message.data;    // li 요소에 message.data 를 통해서 전달받은 메시지를 대입
+    messageList.append(li);
 })
 
 socket.addEventListener("close", () => {
