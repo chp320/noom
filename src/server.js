@@ -31,14 +31,27 @@ wss.on("connection", handleConnection)
 // 익명함수를 만들어 on 메서드에 포함하는 형태로 수정
 wss.on("connection", (socket) => {
     sockets.push(socket);   // 서버에 신규 접속 시마다 배열 sockets에 접속 정보 push
-    // console.log(socket);
+    socket["nickname"] = "Anonymous";   // 닉네임을 설정하지 않은 경우가 있으므로, 최초 익명(anonymous)으로 설정
+    
     console.log("Connected to Browser");
     socket.on("close", () => console.log("Disconnected from Browser"));     // 웹소켓의 close 이벤트 발생 시 처리 로직
-    socket.on("message", (message) => {
-        // console.log(`${message}`)
-        // socket.send(`${message}`);  // 클라이언트에서 보낸 메시지를 받고, 다시 클라이언트에 메시지 전송
+    socket.on("message", (msg) => {
+        const message = JSON.parse(msg);    // 전달된 문자열을 다시 JSON 형식으로 변환
+        /*
+        console.log(message.type, message.payload);
+        // console.log(`${message}`);  // -> message에는 JSON 형식 데이터가 담겨 있으므로.. 소켓으로 웹에 전송 시.. [object Object] 로 노출된다.
         // connection이 발생할 때마다 웹소켓 배열 각 요소에 메시지 전송
         sockets.forEach(aSocket => aSocket.send(`${message}`));
+        */
+        switch(message.type) {
+            case "new_message":
+                // sockets.forEach(aSocket => aSocket.send(`${message.payload}`));
+                sockets.forEach(aSocket => aSocket.send(`${socket.nickname}:${message.payload}`));
+                break;
+            case "nickname":
+                socket["nickname"] = message.payload;   // 사용자(닉네임) 구분을 위해서 닉네임은 소켓 배열에 추가
+                break;
+        }
     });
     // socket.send("hello!!");
 })
