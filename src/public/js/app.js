@@ -5,6 +5,10 @@
 
 const socket = new WebSocket(`ws://${window.location.host}`);
 
+// 요소에 이벤트 등록을 위해서 선택 및 네이밍 설정
+const messageList = document.querySelector("ul");
+const messageForm = document.querySelector("form");
+
 
 /*
  * 서버에서 보낸 메시지를 확인할 수 있도록 코드 수정!
@@ -22,7 +26,18 @@ socket.addEventListener("close", () => {
     console.log("Disconnected from Server");
 })
 
+/*
 // 브라우저(사용자)가 서버에서 메시지 보내는 로직
 setTimeout(() => {
     socket.send("hello from browser!");
 }, 5000);
+*/
+
+// 입력폼 form에서 submit 이벤트 발생 시 처리하기 위한 함수 정의
+function handleSubmit(event) {
+    event.preventDefault();     // 기본 이벤트핸들러 해제
+    const input = messageForm.querySelector("input");   // 입력폼 form에서 input으로 전달된 요소를 선택 및 네이밍(input) 설정
+    socket.send(input.value);   // 소켓을 이용해서 input에 입력된 값을 전송
+    input.value = "";   // input에 입력된 값(value)을 초기화한다.
+}
+messageForm.addEventListener("submit", handleSubmit);   // submit 이 발생했을 때, handleSubmit 콜백함수 호출
