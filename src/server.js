@@ -33,8 +33,9 @@ wss.on("connection", (socket) => {
     socket.on("close", () => console.log("Disconnected from Browser"));     // 웹소켓의 close 이벤트 발생 시 처리 로직
     socket.on("message", (message) => {
         console.log(`${message}`)
+        socket.send(`${message}`);  // 클라이언트에서 보낸 메시지를 받고, 다시 클라이언트에 메시지 전송
     });
-    socket.send("hello!!");
+    // socket.send("hello!!");
 })
 
 
