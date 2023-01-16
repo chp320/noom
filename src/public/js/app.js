@@ -7,7 +7,22 @@ const socket = new WebSocket(`ws://${window.location.host}`);
 
 // 요소에 이벤트 등록을 위해서 선택 및 네이밍 설정
 const messageList = document.querySelector("ul");
-const messageForm = document.querySelector("form");
+// 입력폼이 여러 곳에서 인입될 것이므로 각 form을 구분하기 위함 (#는 id를 의미)
+const nickForm = document.querySelector("#nick");
+const messageForm = document.querySelector("#message");
+
+
+/*
+ * JSON을 문자열로 변환하는 함수
+ * param
+ * - type: 입력 값 유형
+ * - payload: 실제 입력 값
+ */
+function makeMessage(type, payload) {
+    const msg = { type, payload };
+    return JSON.stringify(msg);
+}
+
 
 
 /*
@@ -19,7 +34,6 @@ socket.addEventListener("open", () => {
 })
 
 socket.addEventListener("message", (message) => {
-    // console.log("Just got this:", message.data, "from the server");
     // 수신한 메시지를 화면에 출력하기 위해서,, 메시지 전송 시마다 1) li 요소를 만들고 2) 그 안에 메시지 적고 3) li를 ul 안으로 넣기
     const li = document.createElement("li");    // li 요소를 생성
     li.innerHTML = message.data;    // li 요소에 message.data 를 통해서 전달받은 메시지를 대입
@@ -41,7 +55,16 @@ setTimeout(() => {
 function handleSubmit(event) {
     event.preventDefault();     // 기본 이벤트핸들러 해제
     const input = messageForm.querySelector("input");   // 입력폼 form에서 input으로 전달된 요소를 선택 및 네이밍(input) 설정
-    socket.send(input.value);   // 소켓을 이용해서 input에 입력된 값을 전송
+    socket.send(makeMessage("new_message", input.value));
     input.value = "";   // input에 입력된 값(value)을 초기화한다.
 }
+
+function handleNickSubmit(event) {
+    event.preventDefault();
+    const input = nickForm.querySelector("input");
+    socket.send(makeMessage("nickname", input.value));
+    input.value = "";
+}
+
 messageForm.addEventListener("submit", handleSubmit);   // submit 이 발생했을 때, handleSubmit 콜백함수 호출
+nickForm.addEventListener("submit", handleNickSubmit);
