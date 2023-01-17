@@ -1,5 +1,5 @@
 import http from "http"
-/* express: Node.js 환경에서 API 서버를 개발할 때 사용할 수 있는 웹 프레임워크. HTTP를 기반으로 동작함. */
+import SocketIO from "socket.io"
 import express from "express";
 
 const app = express();
@@ -10,7 +10,13 @@ app.use("/public", express.static(__dirname + "/public"));
 app.get("/", (req, res) => res.render("home"));
 app.get("/*", (req, res) => res.redirect("/"));
 
-const server = http.createServer(app);
+// socket.io 설치 후 정상 동작 여부 확인
+const httpServer = http.createServer(app);
+const wsServer = SocketIO(httpServer);
+
+wsServer.on("connection", (socekt) => {
+    console.log(socekt);
+})
 
 const handleListen = () => console.log("Listening on http://localhost:3000");
-server.listen(3000, handleListen);
+httpServer.listen(3000, handleListen);
