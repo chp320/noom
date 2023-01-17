@@ -17,11 +17,8 @@ const wsServer = SocketIO(httpServer);
 wsServer.on("connection", (socket) => {
     socket.on("enter_room", (roomName, done) => {
         done();     // front에서 전달된 콜백함수(done)를 호출한다!
-        console.log(roomName);
-        console.log(socket.id);
-        console.log(socket.rooms);
         socket.join(roomName);
-        console.log(socket.rooms);
+        socket.to(roomName).emit("welcome");
     });
 })
 
