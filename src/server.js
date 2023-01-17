@@ -15,7 +15,13 @@ const httpServer = http.createServer(app);
 const wsServer = SocketIO(httpServer);
 
 wsServer.on("connection", (socket) => {
-    socket.on("enter_room", (roomName) => console.log(roomName));   // 이벤트 핸들링 메서드 on을 통해서 front에서 보내온 이벤트 처리 (socket.emit으로 전달한 이벤트..)
+    socket.on("enter_room", (roomName, done) => {
+        console.log(roomName);
+        // 5000 밀리초(= 5초) 뒤에 done() 호출하겠음!! 즉, 파라미터 done 으로 전달된 콜백 함수를 실행하겠다는 것!
+        setTimeout(() => {
+            done();
+        }, 5000);
+    });
 })
 
 const handleListen = () => console.log("Listening on http://localhost:3000");
