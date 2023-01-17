@@ -14,8 +14,8 @@ app.get("/*", (req, res) => res.redirect("/"));
 const httpServer = http.createServer(app);
 const wsServer = SocketIO(httpServer);
 
-wsServer.on("connection", (socekt) => {
-    console.log(socekt);
+wsServer.on("connection", (socket) => {
+    socket.on("enter_room", (roomName) => console.log(roomName));   // 이벤트 핸들링 메서드 on을 통해서 front에서 보내온 이벤트 처리 (socket.emit으로 전달한 이벤트..)
 })
 
 const handleListen = () => console.log("Listening on http://localhost:3000");
