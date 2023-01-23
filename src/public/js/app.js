@@ -15,12 +15,24 @@ function addMessage(message) {
     ul.appendChild(li);
 }
 
+function handleMessageSubmit(event) {
+    event.preventDefault();
+    const input = room.querySelector("input");
+    const value = input.value;
+    socket.emit("new_message",value,roomName,() => {
+        addMessage(`You: ${value}`);
+    });
+    input.value = "";
+}
+
 function showRoom() {
     // 채팅룸 이름을 적고 enter_room 이벤트 발생 시 수행되는 부분, 채팅룸 입력 입력창 히든 및 메시지 입력창 노출
     welcome.hidden = true;
     room.hidden = false;
     const h3 = document.querySelector("h3");
     h3.innerHTML = `▶︎ Room ${roomName}`
+    const form = room.querySelector("form");
+    form.addEventListener("submit", handleMessageSubmit);
 }
 
 function handleRoomSubmit(event) {
@@ -39,4 +51,8 @@ socket.on("welcome", () => {
 
 socket.on("bye", () => {
     addMessage("someone left ㅠㅠ");
+})
+
+socket.on("new_message", (msg) => {
+    addMessage(msg);
 })
