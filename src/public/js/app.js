@@ -65,4 +65,8 @@ socket.on("bye", (userNickname) => {
 
 socket.on("new_message", (msg) => {
     addMessage(msg);
-})
+});
+
+socket.on("room_change", (rooms) => {
+    console.log(rooms);
+});

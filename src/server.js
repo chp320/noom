@@ -15,8 +15,6 @@ const httpServer = http.createServer(app);
 const wsServer = SocketIO(httpServer);
 
 function publicRooms() {
-    const sids = wsServer.sockets.adapter.sids;
-    const rooms = wsServer.sockets.adapter.rooms;
     /*
      * socket.io에서는 '개별 소켓'은 서버에서 제공하는 개인공간을 할당받고 그 곳에 들어간다. 즉, 소켓과 서버 사이에 형성된 채팅룸. (private room). 소켓id는 private room 의 id와 동일!
      * 이후 join 메서드를 사용해서 다른 소켓과 그룹을 형성해 채팅룸을 만듦. (public room)
@@ -24,8 +22,15 @@ function publicRooms() {
        - private room: sids 내 속성이 rooms 에도 존재한다!
        - public room: sids 내 속성이 rooms 에 없다!!
      */
+    // 와... 이런 형태는 '구조 분해 할당' 이라고 한단다...;;
+    const {
+        sockets: {
+            adapter: { sids, rooms },
+        },
+    } = wsServer;
+
     const publicRooms = [];
-    rooms.forEach((value, key) => {
+    rooms.forEach((_, key) => {
         if(sids.get(key) === undefined) {
             publicRooms.push(key)
         }
@@ -48,10 +53,17 @@ wsServer.on("connection", (socket) => {
         done();     // front에서 전달된 콜백함수(done)를 호출한다!
         socket.join(roomName);
         socket.to(roomName).emit("welcome", socket.nickname);
+        wsServer.sockets.emit("room_change", publicRooms());
     });
+    // disconnecting 과 disconnect 의 차이점? 
+    // - disconnecting: 사용자가 채팅룸 나가기 위해 브라우저 끄는 이벤트 발생 시!
+    // - disconnect: disconnecting 이후 연결이 완전히 해제되었을 때 발생하는 이벤트!
     socket.on("disconnecting", () => {
         socket.rooms.forEach((room) => socket.to(room).emit("bye", socket.nickname));
     });
+    socket.on("disconnect", () => {
+        wsServer.sockets.emit("room_change", publicRooms());
+    })
     socket.on("new_message", (msg, room, done) => {
         socket.to(room).emit("new_message", `${socket.nickname}: ${msg}`);
         done();
