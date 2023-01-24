@@ -1,5 +1,7 @@
-import http from "http"
-import SocketIO from "socket.io"
+import http from "http";
+// import SocketIO from "socket.io"
+import { Server } from "socket.io";
+import { instrument } from "@socket.io/admin-ui";
 import express from "express";
 
 const app = express();
@@ -12,7 +14,17 @@ app.get("/*", (req, res) => res.redirect("/"));
 
 // socket.io 설치 후 정상 동작 여부 확인
 const httpServer = http.createServer(app);
-const wsServer = SocketIO(httpServer);
+// socket.io 서버 생성 방식 변경. origin 속성에 socket.io 에서 제공하는 admin 페이지 설정
+const wsServer = new Server(httpServer, {
+    cors: {
+        origin: ["https://admin.socket.io"],
+        credentials: true
+    }
+});
+
+instrument(wsServer, {
+    auth: false
+});
 
 function publicRooms() {
     /*
