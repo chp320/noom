@@ -55,11 +55,23 @@ function handleRoomSubmit(event) {
 
 form.addEventListener("submit", handleRoomSubmit);
 
-socket.on("welcome", (userNickname) => {
+// socket.on("welcome", (userNickname) => {
+//     addMessage(`${userNickname} arrived!`);
+// });
+
+// socket.on("bye", (userNickname) => {
+//     addMessage(`${userNickname} left ㅠㅠ`);
+// });
+
+socket.on("welcome", (userNickname, newCount) => {
+    const h3 = room.querySelector("h3");
+    h3.innerText = `Room ${roomName} (${newCount})`;
     addMessage(`${userNickname} arrived!`);
 });
 
-socket.on("bye", (userNickname) => {
+socket.on("bye", (userNickname, newCount) => {
+    const h3 = room.querySelector("h3");
+    h3.innerText = `Room ${roomName} (${newCount})`;
     addMessage(`${userNickname} left ㅠㅠ`);
 });
 
@@ -69,4 +81,14 @@ socket.on("new_message", (msg) => {
 
 socket.on("room_change", (rooms) => {
     console.log(rooms);
+    const roomList = welcome.querySelector("ul");
+    roomList.innerHTML = "";    // room_change 이벤트가 발생 시마다 화면에 새로 표시해야하므로 기존 데이터는 '삭제' 후 출력히도록 함.
+    if(rooms.length === 0) {
+        return;
+    }
+    rooms.forEach((room) => {
+        const li = document.createElement("li");
+        li.innerText = room;
+        roomList.append(li);
+    });
 });

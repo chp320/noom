@@ -38,6 +38,10 @@ function publicRooms() {
     return publicRooms;
 }
 
+function countRoom(roomName) {
+    return wsServer.sockets.adapter.rooms.get(roomName)?.size;
+}
+
 wsServer.on("connection", (socket) => {
     socket["nickname"] = "Anonymous";   // 닉네임 입력되기 전까지 '익명'으로 표기
     /*
@@ -52,14 +56,14 @@ wsServer.on("connection", (socket) => {
     socket.on("enter_room", (roomName, done) => {
         done();     // front에서 전달된 콜백함수(done)를 호출한다!
         socket.join(roomName);
-        socket.to(roomName).emit("welcome", socket.nickname);
+        socket.to(roomName).emit("welcome", socket.nickname, countRoom(roomName));
         wsServer.sockets.emit("room_change", publicRooms());
     });
     // disconnecting 과 disconnect 의 차이점? 
     // - disconnecting: 사용자가 채팅룸 나가기 위해 브라우저 끄는 이벤트 발생 시!
     // - disconnect: disconnecting 이후 연결이 완전히 해제되었을 때 발생하는 이벤트!
     socket.on("disconnecting", () => {
-        socket.rooms.forEach((room) => socket.to(room).emit("bye", socket.nickname));
+        socket.rooms.forEach((room) => socket.to(room).emit("bye", socket.nickname, countRoom(room) - 1));  // disconnecting은 퇴장(연결 해제 직전)할 때 발생하는 이벤트로 나가려는 사람의 수를 빼기 위해서 '-1'을 함.
     });
     socket.on("disconnect", () => {
         wsServer.sockets.emit("room_change", publicRooms());
