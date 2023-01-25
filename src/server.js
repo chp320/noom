@@ -17,6 +17,7 @@ wsServer.on("connection", (socket) => {
     socket.on("join_room", (roomName, done) => {
         socket.join(roomName);  // 사용자를 roomName 채팅룸에 접속시켜 줌
         done();     // front에서 전달한 콜백함수를 처리. 여기서는 startMedia()
+        socket.to(roomName).emit("welcome");
     });
 });
 

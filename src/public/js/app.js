@@ -9,6 +9,7 @@ const call = document.getElementById("call");
 let myStream;
 let muted = false;
 let cameraoff = false;
+let roomName;
 
 async function getCameras() {
     // 모든 미디어 기기를 가져오는 기능
@@ -112,7 +113,14 @@ function handleWelcomeSubmit(event) {
     event.preventDefault();
     const input = welcomeForm.querySelector("input");
     socket.emit("join_room", input.value, startMedia);  // join_room 이벤트 발생 시 startMedia 콜백함수도 서버로 함께 넘겨준다.
+    roomName = input.value;
     input.value = "";
 }
 
 welcomeForm.addEventListener("submit", handleWelcomeSubmit);
+
+// Socket Code
+
+socket.on("welcome", () => {
+    console.log("someone joined!");
+});
