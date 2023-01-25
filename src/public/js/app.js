@@ -10,6 +10,7 @@ let myStream;
 let muted = false;
 let cameraoff = false;
 let roomName;
+let myPeerConnection;
 
 async function getCameras() {
     // 모든 미디어 기기를 가져오는 기능
@@ -103,10 +104,11 @@ const welcomeForm = welcome.querySelector("form");
 
 call.hidden = true;
 
-function startMedia() {
+async function startMedia() {
     welcome.hidden = true;
     call.hidden = false;
-    getMedia();
+    await getMedia();
+    makeConnection();
 }
 
 function handleWelcomeSubmit(event) {
@@ -124,3 +126,11 @@ welcomeForm.addEventListener("submit", handleWelcomeSubmit);
 socket.on("welcome", () => {
     console.log("someone joined!");
 });
+
+// RTC Code
+
+function makeConnection() {
+    myPeerConnection = new RTCPeerConnection();
+    // console.log(myStream.getTracks());
+    myStream.getTracks().forEach(track => myPeerConnection.addTrack(track, myStream));  // getTracks() 를 통해 취득한 미디어를 RTCPeerConnection 객체인 myPeerConnection에 추가!
+}
