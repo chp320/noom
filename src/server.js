@@ -19,6 +19,10 @@ wsServer.on("connection", (socket) => {
         done();     // front에서 전달한 콜백함수를 처리. 여기서는 startMedia()
         socket.to(roomName).emit("welcome");
     });
+    // 클라이언트에서 offer 이벤트 보내면, 해당 채팅룸(roomName)에 해당하는 모든 사옹자(클라이언트)에게 offer이벤트와 offer 객체를 전달!
+    socket.on("offer", (offer, roomName) => {
+        socket.to(roomName).emit("offer", offer);
+    });
 });
 
 const handleListen = () => console.log("Listening on http://localhost:3000");

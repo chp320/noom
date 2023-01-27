@@ -123,9 +123,19 @@ welcomeForm.addEventListener("submit", handleWelcomeSubmit);
 
 // Socket Code
 
-socket.on("welcome", () => {
+socket.on("welcome", async () => {
     console.log("someone joined!");
+    const offer = await myPeerConnection.createOffer();
+    // console.log(offer);
+    myPeerConnection.setLocalDescription(offer);    // 생성한 offer를 전송하기 위해 myPeerConnection에 offer를 포함!
+    console.log("sent the offer");
+    socket.emit("offer", offer, roomName);  // offer 전송은 socket.io 를 사용!
 });
+// (offer받기) offer 이벤트 처리를 위한 이벤트 핸들러
+socket.on("offer", offer => {
+    console.log("received the offer");
+    console.log(offer);
+})
 
 // RTC Code
 
